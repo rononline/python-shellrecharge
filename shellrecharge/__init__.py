@@ -30,26 +30,32 @@ class Api:
         """
         location = None
 
-        url = URL(
-            "https://ui-map.shellrecharge.com/api/map/v2/locations/search/{}".format(
-                location_id
-            )
-        )
+	url = URL(
+	    "https://shellretaillocator.geoapp.me/api/v2/on_street_charger_locations/{}".format(
+		location_id
+	    )
+	).with_query(
+	    {
+		"locale": "nl_NL",
+		"format": "json",
+		"driving_distances": "false",
+	    }
+	)
         retry_client = RetryClient(
             client_session=self.websession,
             retry_options=ExponentialRetry(attempts=3, start_timeout=5),
         )
         try:
             async with retry_client.get(url) as response:
-                if response.status == 200:
-                    result = await response.json()
-                    if result:
-                        if pydantic.version.VERSION.startswith("1"):
-                            location = Location.parse_obj(result[0])
-                        else:
-                            location = Location.model_validate(result[0])
-                    else:
-                        raise LocationEmptyError()
+		if response.status == 200:
+		    result = await response.json()
+		    if result:
+			if pydantic.version.VERSION.startswith("1"):
+			    location = Location.parse_obj(result)
+			else:
+			    location = Location.model_validate(result)
+		    else:
+			raise LocationEmptyError()
                 elif response.status == 429:
                     raise RateLimitHitError("Rate limit of API has been hit")
                 else:
