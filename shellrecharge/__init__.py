@@ -62,24 +62,31 @@ class Api:
 
         token = await self._get_oauth_token()
 
-        headers = {
-            "Accept": "application/json",
-            "Authorization": f"Bearer {token}",
-            "x-octopus-market": "nl-NL",
-            "Accept-Language": "nl-NL,nl;q=0.9",
-            "User-Agent": "HomeAssistant shellrecharge custom integration",
-        }
+	headers = {
+	    "Accept": "application/json",
+	    "Authorization": f"Bearer {token}",
+	    "Accept-Language": "nl-NL,nl;q=0.9",
+	    "x-octopus-market": "nl-NL",
+	    "version": "8.2.0",
+	    "client-version": "0.34.0",
+	    "os": "ios",
+	    "app": "shell_app",
+	    "client": "rn_bridge",
+	    "test-market": "false",
+	    "User-Agent": "ShellFireblade-AppStore/8020012 CFNetwork/3860.400.51 Darwin/25.3.0",
+	}
 
-        url = URL(f"{self.OCTOPUS_BASE}/{location_uid}/details").with_query(
-            {
-                "apikey": self.API_KEY,
-                "pricing": "legacy-to-360",
-                "allTariffs": "true",
-                "units": "metric",
-                "providerIds": "Shell_B2C",
-            }
-        )
-
+	url = URL(f"{self.OCTOPUS_BASE}/{location_uid}/details").with_query(
+	    {
+		"apikey": self.API_KEY,
+		"latitude": "51.84575121394616",
+		"longitude": "4.543545300780526",
+		"pricing": "legacy-to-360",
+		"allTariffs": "true",
+		"units": "metric",
+		"providerIds": "Shell_B2C",
+	    }
+	)
         retry_client = RetryClient(
             client_session=self.websession,
             retry_options=ExponentialRetry(attempts=3, start_timeout=5),
